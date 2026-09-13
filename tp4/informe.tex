@@ -1,0 +1,179 @@
+\documentclass[12pt,a4paper]{article}
+\input{../assets/estilo-informe.tex}
+\usepackage{xurl}
+
+\newcommand{\materia}{Cyberseguridad}
+\newcommand{\numeroTP}{4}
+\newcommand{\tituloTP}{NTP, NTPsec y NTS}
+\newcommand{\estudiante}{Brigido Tomas Andres}
+\newcommand{\legajo}{38481096}
+\newcommand{\carrera}{ICOMP}
+\newcommand{\docente}{Javier A. Jorge}
+
+
+% Metadatos específicos del TP4 y capturas en img/.
+\hypersetup{pdftitle={TP4 - NTP, NTPsec y NTS}}
+\renewcommand{\captura}[2]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{img/#1}{%
+      \includegraphics[width=0.85\linewidth,height=5cm,keepaspectratio]{img/#1}%
+    }{%
+      \setlength{\fboxsep}{10pt}%
+      \fcolorbox{bronce}{calido}{\parbox[c][1.1cm][c]{0.85\linewidth}{%
+        \centering\small Captura pendiente\par\texttt{\detokenize{#1}}}}%
+    }%
+    \caption{#2}
+  \end{figure}
+}
+
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+  \includegraphics[width=8cm]{../assets/logo-fcefyn-2026.png}
+  \vspace{1cm}
+
+  {\color{verde}\small UNIVERSIDAD NACIONAL DE CÓRDOBA\par}
+  \vspace{2.1cm}
+  {\color{bronce}\bfseries\large TRABAJO PRÁCTICO \numeroTP\par}
+  \vspace{0.45cm}
+  {\color{verde}\bfseries\fontsize{32}{38.4}\selectfont NTP, NTPsec\\y NTS\par}
+  \vspace{0.65cm}
+  {\large \materia\par}
+  \vspace{0.8cm}
+  {\color{bronce}\rule{2.7cm}{2pt}\par}
+  \vfill
+  \renewcommand{\arraystretch}{1.45}
+  \begin{tabular}{@{}p{3.2cm}p{10cm}@{}}
+    Estudiante & \estudiante \\
+    Legajo & \legajo \\
+    Carrera & \carrera \\
+    Docente & \docente \\
+  \end{tabular}
+  \vfill
+  {\small Córdoba, Argentina\par}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+
+\tableofcontents
+\vspace{1cm}
+\newpage
+
+\section{Introducción y objetivos}
+Este trabajo estudia la seguridad de la sincronización horaria mediante NTP.
+La consigna propone analizar vulnerabilidades y sus consecuencias, revisar
+la configuración del equipo y evaluar defensas con NTPsec y NTS en un
+escenario de laboratorio aislado.
+\begin{itemize}
+    \item Investigar las vulnerabilidades de NTP y sus posibles impactos.
+    \item Documentar la configuración horaria actual y su verificación.
+    \item Evaluar un escenario de intermediario (MITM) en el laboratorio.
+    \item Comparar el comportamiento del cliente antes y después de aplicar defensas.
+\end{itemize}
+
+\section{Análisis de NTP y configuración actual}
+\subsection{Vulnerabilidades e implicancias}
+\pendiente{Identificar vulnerabilidades de NTP y explicar sus consecuencias.
+Distinguir problemas del protocolo de fallas de implementaciones o versiones
+concretas. Citar las fuentes consultadas y relacionar los efectos con servicios
+que dependen de una hora correcta.}
+
+\subsection{Configuración actual del host}
+\pendiente{Indicar sistema operativo, cliente o servicio de sincronización,
+versión, servidores configurados y estado de sincronización. Registrar los
+comandos de consulta y las rutas de configuración realmente utilizadas.}
+\captura{01-configuracion-actual.png}{Configuración inicial del servicio de sincronización.}
+
+\newpage
+\section{Evaluación de un ataque MITM sobre NTP}
+\subsection{Viabilidad y condiciones}
+\pendiente{Responder si es posible realizar un ataque de intermediario sobre
+el servicio NTP estudiado. Explicar las condiciones necesarias y distinguir
+el desvío por DNS de otras formas de intermediación. Indicar qué se pretende
+comprobar en el laboratorio.}
+
+\subsection{Entorno y topología del laboratorio}
+\pendiente{Describir el entorno aislado, los equipos propios utilizados y
+sus conexiones. Identificar el cliente, el AP controlado, el DNS local y el
+servidor NTP de prueba.}
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{@{}p{4.4cm}XX@{}}
+\toprule
+\textbf{Componente} & \textbf{Sistema / herramienta} & \textbf{IP / función} \\
+\midrule
+Cliente de prueba & [Completar] & [Completar] \\
+Punto de acceso & [Completar] & [Completar] \\
+DNS local & [Completar] & [Completar] \\
+Servidor NTP controlado & [Completar] & [Completar] \\
+\bottomrule
+\end{tabularx}
+\endgroup
+
+\subsection{Implementación del escenario}
+\subsubsection{Punto de acceso controlado}
+\pendiente{Documentar cómo se montó el AP del laboratorio, la herramienta
+empleada (por ejemplo, hostapd) y cómo se conectó el cliente de prueba.}
+
+\subsubsection{Redirección de DNS}
+\pendiente{Registrar el nombre utilizado en la prueba, su resolución inicial
+y la resolución hacia el servidor NTP controlado. Documentar la configuración
+del DNS local y la evidencia de que el cliente utilizó esa resolución.}
+
+\subsubsection{Servidor NTP manipulado}
+\pendiente{Describir la implementación del servidor de prueba y la diferencia
+horaria introducida. Registrar si el cliente aceptó, rechazó o limitó el cambio,
+junto con los registros o capturas que permiten sostener esa conclusión.}
+\captura{02-prueba-ntp.png}{Comportamiento del cliente durante la prueba de laboratorio.}
+
+\newpage
+\section{Defensas y verificación}
+\subsection{Configuración con NTPsec y NTS}
+\pendiente{Explicar qué configuración se propone para proteger el host y
+qué función cumplen NTPsec y NTS. Documentar versiones, servidores elegidos
+y cambios aplicados, distinguiendo la instalación del software de la
+activación efectiva de la protección.}
+\captura{03-configuracion-defensiva.png}{Configuración aplicada para proteger la sincronización.}
+
+\subsection{Comprobación de la configuración}
+\pendiente{Indicar cómo se verificaron la sincronización, el origen de la hora
+y la autenticación cuando corresponda. Repetir la prueba del laboratorio y
+comparar resultados con la configuración inicial.}
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{@{}p{5cm}XX@{}}
+\toprule
+\textbf{Aspecto observado} & \textbf{Antes} & \textbf{Después} \\
+\midrule
+Fuente horaria utilizada & [Completar] & [Completar] \\
+Estado de sincronización & [Completar] & [Completar] \\
+Autenticación verificada & [Completar] & [Completar] \\
+Respuesta a la manipulación & [Completar] & [Completar] \\
+\bottomrule
+\end{tabularx}
+\endgroup
+
+\section{Evaluación de ntp.inti.gob.ar}
+\pendiente{Investigar quién administra el servicio, qué prestaciones documenta
+y si ofrece mecanismos de autenticación como NTS. Evaluar su seguridad para
+el uso planteado con fuentes y verificaciones, diferenciando disponibilidad,
+precisión y autenticidad. Registrar la fecha de consulta y los límites de la
+evidencia obtenida.}
+
+\section{Conclusiones}
+\pendiente{Responder brevemente qué riesgos se comprobaron, qué defensas
+resultaron efectivas y qué limitaciones o verificaciones quedaron pendientes.}
+
+\section{Referencias}
+\begin{enumerate}
+    \item Consigna del TP4: \textit{NTP, NTPsec y NTS}, archivo
+    \texttt{consigna.pdf} suministrado para la actividad.
+    \item FCEFyN, Universidad Nacional de Córdoba. \textit{Manual de
+    identidad visual}, 2026. Base del estilo del informe.
+\end{enumerate}
+\pendiente{Agregar la documentación técnica y las fuentes utilizadas para
+analizar vulnerabilidades, NTPsec, NTS y el servicio del INTI, con sus fechas
+de consulta.}
+\end{document}

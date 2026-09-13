@@ -1,0 +1,53 @@
+% Estilo compartido para informes. Compilar con LuaLaTeX desde tp1/.
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{fontspec}
+\setmainfont{Montserrat-Medium.ttf}[
+  Path=../assets/fonts/,
+  BoldFont=Montserrat-Bold.ttf,
+  ItalicFont=Montserrat-MediumItalic.ttf]
+\usepackage[a4paper,margin=2.5cm,headheight=16pt]{geometry}
+\usepackage{xcolor,graphicx,booktabs,tabularx}
+\usepackage{float}
+\usepackage{titlesec,fancyhdr,enumitem,caption}
+\usepackage{ragged2e}
+\usepackage{hyperref}
+\definecolor{verde}{HTML}{1D4036}
+\definecolor{bronce}{HTML}{D38129}
+\definecolor{rosa}{HTML}{D88E77}
+\definecolor{calido}{HTML}{EFE4D8}
+\definecolor{grafito}{HTML}{1D1D1D}
+\hypersetup{colorlinks=true,linkcolor=verde,urlcolor=verde,
+  pdftitle={TP1 - Instalación de máquinas virtuales},pdfsubject={Cyberseguridad}}
+\AtBeginDocument{\color{grafito}\RaggedRight\fontsize{12}{14.4}\selectfont}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{7pt}
+\setlist[itemize]{leftmargin=*,itemsep=7pt,topsep=4pt}
+\setlist[enumerate]{leftmargin=*,itemsep=6pt}
+\titleformat{\section}{\color{verde}\bfseries\fontsize{18}{21.6}\selectfont}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\color{verde}\bfseries\large}{\thesubsection}{0.65em}{}
+\titleformat{\subsubsection}{\color{verde}\bfseries}{\thesubsubsection}{0.65em}{}
+\titlespacing*{\section}{0pt}{16pt}{8pt}
+\titlespacing*{\subsection}{0pt}{12pt}{5pt}
+\titlespacing*{\subsubsection}{0pt}{10pt}{4pt}
+\setcounter{tocdepth}{2}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{verde}FCEFyN | UNC}
+\fancyhead[R]{\small\color{verde}\materia\ · TP \numeroTP}
+\fancyfoot[L]{\scriptsize Informe de laboratorio}
+\fancyfoot[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\captionsetup{font=small,labelfont=bf,justification=raggedright,singlelinecheck=false,hypcap=false}
+\newcommand{\pendiente}[1]{\par{\small\color{verde}\textbf{Por completar.} #1\par}}
+% Si falta una captura se muestra un espacio reservado; no impide compilar.
+\newcommand{\captura}[2]{%
+  \par\smallskip\begingroup\centering
+  \IfFileExists{figuras/#1}{%
+    \includegraphics[width=\linewidth,height=5cm,keepaspectratio]{figuras/#1}%
+  }{%
+    \setlength{\fboxsep}{10pt}%
+    \fcolorbox{bronce}{calido}{\parbox[c][1.25cm][c]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
+      \centering\small Captura pendiente\par\texttt{\detokenize{#1}}}}%
+  }%
+  \captionof{figure}{#2}\par\endgroup\smallskip
+}
