@@ -71,27 +71,53 @@ escenario de laboratorio aislado.
     \item Comparar el comportamiento del cliente antes y después de aplicar defensas.
 \end{itemize}
 
-\section{Análisis de NTP y configuración actual}
-\subsection{Vulnerabilidades e implicancias}
-\pendiente{Identificar vulnerabilidades de NTP y explicar sus consecuencias.
-Distinguir problemas del protocolo de fallas de implementaciones o versiones
-concretas. Citar las fuentes consultadas y relacionar los efectos con servicios
-que dependen de una hora correcta.}
+\section{Preguntas y actividades}
+\begingroup
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{@{}p{2.5cm}>{\RaggedRight\arraybackslash}X@{}}
+\toprule
+\textbf{Término} & \textbf{Qué es} \\
+\midrule
+\textbf{NTP} & El protocolo que permite sincronizar relojes por la red. \\
+\textbf{NTPsec} & Una implementación de NTP enfocada en seguridad. \\
+\textbf{NTS} & Un mecanismo que agrega autenticación criptográfica a la sincronización mediante NTP. \\
+\bottomrule
+\end{tabularx}
+\endgroup
 
-\subsection{Configuración actual del host}
-\pendiente{Indicar sistema operativo, cliente o servicio de sincronización,
-versión, servidores configurados y estado de sincronización. Registrar los
-comandos de consulta y las rutas de configuración realmente utilizadas.}
-\captura{01-configuracion-actual.png}{Configuración inicial del servicio de sincronización.}
+\begin{enumerate}
+    \item \textbf{¿Cuáles son las vulnerabilidades de NTP? ¿Qué implicancias podría tener su explotación?}
+
+    Algunas de las principales bulnerabilidades de NTP incluyen ataques de amplificación DDoS,
+    ciertos comandos de gestion NTP permiten a un atacante hacer que el servidor NTP responda con una
+    cantidad mucho mayor a la vitctima y saturar su ancho de banda.
+    
+    Otra vulnerabilidad importante es la falsificacion de direccion IP, esto permite a un atacante
+    enviar paquetes NTP falsos simulando ser un servidor NTP confiable.
+
+    \item \textbf{¿Cuál es la configuración actual de NTP en tu equipo?}
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.85\textwidth]{img/timeprotocol.png}
+      \caption{Configuración de NTP.}
+      \label{fig:imagen}
+    \end{figure}
+
+    \item \textbf{¿Es posible realizar un ataque de intermediario (MITM) sobre un servicio NTP? ¿Podés implementarlo en el entorno aislado del laboratorio?}
+
+   Sí, es totalmente posible realizar un ataque de intermediario (MITM) sobre el protocolo NTP, principalmente porque las versiones más utilizadas de NTP (como NTPv4) no implementan cifrado ni autenticación de forma predeterminada. Esto permite a un atacante interceptar y modificar los paquetes de tiempo para alterar el reloj de la víctima.
+
+    \item \textbf{¿Cómo configurarías tu host para evitar problemas con NTP? ¿Cómo verificarías que la configuración es correcta?}
+    
+    Mantendría actualizado el cliente NTP y usaría servidores compatibles con NTS para autenticar las respuestas. Verificaría en el estado y los registros del servicio que el reloj esté sincronizado, que se utilice el servidor configurado y que la autenticación NTS esté activa.
+
+    \item \textbf{¿Conocés ntp.inti.gob.ar? ¿Es seguro?}
+    Es el servidor de INTI que proporciona servicios de sincronización horaria basada en operacion de un conjunto de relojes atomicos. Su seguridad depende de la implementación y configuración del servidor, así como de la red en la que se encuentre. Para mayor seguridad, se recomienda utilizar servidores NTP que soporten NTS y estén actualizados.
+    \pendiente{Respuesta.}
+\end{enumerate}
 
 \newpage
-\section{Evaluación de un ataque MITM sobre NTP}
-\subsection{Viabilidad y condiciones}
-\pendiente{Responder si es posible realizar un ataque de intermediario sobre
-el servicio NTP estudiado. Explicar las condiciones necesarias y distinguir
-el desvío por DNS de otras formas de intermediación. Indicar qué se pretende
-comprobar en el laboratorio.}
-
+\section{Escenario de laboratorio}
 \subsection{Entorno y topología del laboratorio}
 \pendiente{Describir el entorno aislado, los equipos propios utilizados y
 sus conexiones. Identificar el cliente, el AP controlado, el DNS local y el
@@ -126,41 +152,6 @@ del DNS local y la evidencia de que el cliente utilizó esa resolución.}
 horaria introducida. Registrar si el cliente aceptó, rechazó o limitó el cambio,
 junto con los registros o capturas que permiten sostener esa conclusión.}
 \captura{02-prueba-ntp.png}{Comportamiento del cliente durante la prueba de laboratorio.}
-
-\newpage
-\section{Defensas y verificación}
-\subsection{Configuración con NTPsec y NTS}
-\pendiente{Explicar qué configuración se propone para proteger el host y
-qué función cumplen NTPsec y NTS. Documentar versiones, servidores elegidos
-y cambios aplicados, distinguiendo la instalación del software de la
-activación efectiva de la protección.}
-\captura{03-configuracion-defensiva.png}{Configuración aplicada para proteger la sincronización.}
-
-\subsection{Comprobación de la configuración}
-\pendiente{Indicar cómo se verificaron la sincronización, el origen de la hora
-y la autenticación cuando corresponda. Repetir la prueba del laboratorio y
-comparar resultados con la configuración inicial.}
-\begingroup
-\small
-\renewcommand{\arraystretch}{1.4}
-\begin{tabularx}{\linewidth}{@{}p{5cm}XX@{}}
-\toprule
-\textbf{Aspecto observado} & \textbf{Antes} & \textbf{Después} \\
-\midrule
-Fuente horaria utilizada & [Completar] & [Completar] \\
-Estado de sincronización & [Completar] & [Completar] \\
-Autenticación verificada & [Completar] & [Completar] \\
-Respuesta a la manipulación & [Completar] & [Completar] \\
-\bottomrule
-\end{tabularx}
-\endgroup
-
-\section{Evaluación de ntp.inti.gob.ar}
-\pendiente{Investigar quién administra el servicio, qué prestaciones documenta
-y si ofrece mecanismos de autenticación como NTS. Evaluar su seguridad para
-el uso planteado con fuentes y verificaciones, diferenciando disponibilidad,
-precisión y autenticidad. Registrar la fecha de consulta y los límites de la
-evidencia obtenida.}
 
 \section{Conclusiones}
 \pendiente{Responder brevemente qué riesgos se comprobaron, qué defensas
