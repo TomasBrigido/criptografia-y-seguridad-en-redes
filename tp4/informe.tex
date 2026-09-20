@@ -67,8 +67,6 @@ escenario de laboratorio aislado.
 \begin{itemize}
     \item Investigar las vulnerabilidades de NTP y sus posibles impactos.
     \item Documentar la configuración horaria actual y su verificación.
-    \item Evaluar un escenario de intermediario (MITM) en el laboratorio.
-    \item Comparar el comportamiento del cliente antes y después de aplicar defensas.
 \end{itemize}
 
 \section{Preguntas y actividades}
@@ -95,6 +93,7 @@ escenario de laboratorio aislado.
     Otra vulnerabilidad importante es la falsificacion de direccion IP, esto permite a un atacante
     enviar paquetes NTP falsos simulando ser un servidor NTP confiable.
 
+    \newpage
     \item \textbf{¿Cuál es la configuración actual de NTP en tu equipo?}
     \begin{figure}[H]
       \centering
@@ -113,49 +112,7 @@ escenario de laboratorio aislado.
 
     \item \textbf{¿Conocés ntp.inti.gob.ar? ¿Es seguro?}
     Es el servidor de INTI que proporciona servicios de sincronización horaria basada en operacion de un conjunto de relojes atomicos. Su seguridad depende de la implementación y configuración del servidor, así como de la red en la que se encuentre. Para mayor seguridad, se recomienda utilizar servidores NTP que soporten NTS y estén actualizados.
-    \pendiente{Respuesta.}
 \end{enumerate}
-
-\newpage
-\section{Escenario de laboratorio}
-\subsection{Entorno y topología del laboratorio}
-\pendiente{Describir el entorno aislado, los equipos propios utilizados y
-sus conexiones. Identificar el cliente, el AP controlado, el DNS local y el
-servidor NTP de prueba.}
-\begingroup
-\small
-\renewcommand{\arraystretch}{1.4}
-\begin{tabularx}{\linewidth}{@{}p{4.4cm}XX@{}}
-\toprule
-\textbf{Componente} & \textbf{Sistema / herramienta} & \textbf{IP / función} \\
-\midrule
-Cliente de prueba & [Completar] & [Completar] \\
-Punto de acceso & [Completar] & [Completar] \\
-DNS local & [Completar] & [Completar] \\
-Servidor NTP controlado & [Completar] & [Completar] \\
-\bottomrule
-\end{tabularx}
-\endgroup
-
-\subsection{Implementación del escenario}
-\subsubsection{Punto de acceso controlado}
-\pendiente{Documentar cómo se montó el AP del laboratorio, la herramienta
-empleada (por ejemplo, hostapd) y cómo se conectó el cliente de prueba.}
-
-\subsubsection{Redirección de DNS}
-\pendiente{Registrar el nombre utilizado en la prueba, su resolución inicial
-y la resolución hacia el servidor NTP controlado. Documentar la configuración
-del DNS local y la evidencia de que el cliente utilizó esa resolución.}
-
-\subsubsection{Servidor NTP manipulado}
-\pendiente{Describir la implementación del servidor de prueba y la diferencia
-horaria introducida. Registrar si el cliente aceptó, rechazó o limitó el cambio,
-junto con los registros o capturas que permiten sostener esa conclusión.}
-\captura{02-prueba-ntp.png}{Comportamiento del cliente durante la prueba de laboratorio.}
-
-\section{Conclusiones}
-\pendiente{Responder brevemente qué riesgos se comprobaron, qué defensas
-resultaron efectivas y qué limitaciones o verificaciones quedaron pendientes.}
 
 \section{Referencias}
 \begin{enumerate}
@@ -164,7 +121,4 @@ resultaron efectivas y qué limitaciones o verificaciones quedaron pendientes.}
     \item FCEFyN, Universidad Nacional de Córdoba. \textit{Manual de
     identidad visual}, 2026. Base del estilo del informe.
 \end{enumerate}
-\pendiente{Agregar la documentación técnica y las fuentes utilizadas para
-analizar vulnerabilidades, NTPsec, NTS y el servicio del INTI, con sus fechas
-de consulta.}
 \end{document}
