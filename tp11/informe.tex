@@ -288,6 +288,9 @@ void loop() {
 \end{verbatim}
 \endgroup
 
+El programa genera un par de claves y firma el hash de prueba con la clave privada. Luego verifica la firma con la clave pública. Al modificar un byte del hash, la verificación falla, mostrando que la firma permite detectar cambios en los datos. Todo se ejecuta una sola vez en \texttt{setup()}.
+
+
 \newpage
 \renewcommand{\refname}{Referencias}
 \begin{thebibliography}{9}
