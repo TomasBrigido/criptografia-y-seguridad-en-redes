@@ -1,0 +1,134 @@
+\documentclass[12pt,a4paper]{article}
+\input{../assets/estilo-informe.tex}
+\usepackage{xurl}
+
+\newcommand{\materia}{Cyberseguridad}
+\newcommand{\numeroTP}{13}
+\newcommand{\tituloTP}{Firma de firmware y Secure Boot v2}
+\newcommand{\estudiante}{Brigido Tomas Andres}
+\newcommand{\legajo}{38481096}
+\newcommand{\carrera}{ICOMP}
+\newcommand{\docente}{Javier A. Jorge}
+
+
+% Metadatos específicos del TP13 y capturas en img/.
+\hypersetup{pdftitle={TP13 - Firma de firmware y Secure Boot v2},linkcolor=black,urlcolor=black,citecolor=black}
+\renewcommand{\captura}[2]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{img/#1}{%
+      \includegraphics[width=0.85\linewidth,height=5cm,keepaspectratio]{img/#1}%
+    }{%
+      \setlength{\fboxsep}{10pt}%
+      \fcolorbox{bronce}{calido}{\parbox[c][1.1cm][c]{0.85\linewidth}{%
+        \centering\small Captura pendiente\par\texttt{\detokenize{#1}}}}%
+    }%
+    \caption{#2}
+  \end{figure}
+}
+
+\usepackage{caption}
+\captionsetup{justification=centering}
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+  \includegraphics[width=8cm]{../assets/logo-fcefyn-2026.png}
+  \vspace{1cm}
+
+  {\color{verde}\small UNIVERSIDAD NACIONAL DE CÓRDOBA\par}
+  \vspace{2.1cm}
+  {\color{bronce}\bfseries\large TRABAJO PRÁCTICO \numeroTP\par}
+  \vspace{0.45cm}
+  {\color{verde}\bfseries\fontsize{32}{38.4}\selectfont Firma de firmware\\y Secure Boot v2\par}
+  \vspace{0.3cm}
+{\small Espressif y SignServer\par}
+\vspace{0.35cm}
+  {\large \materia\par}
+  \vspace{0.8cm}
+  {\color{bronce}\rule{2.7cm}{2pt}\par}
+  \vfill
+  \renewcommand{\arraystretch}{1.45}
+  \begin{tabular}{@{}p{3.2cm}p{10cm}@{}}
+    Estudiante & \estudiante \\
+    Legajo & \legajo \\
+    Carrera & \carrera \\
+    Docente & \docente \\
+  \end{tabular}
+  \vfill
+  {\small Córdoba, Argentina\par}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+
+\tableofcontents
+\vspace{1cm}
+\newpage
+
+\section{Introducción y objetivos}
+Esta actividad propone implementar Secure Boot v2 en un dispositivo Espressif e integrar SignServer en el proceso de firma de firmware. Se documentarán la preparación del entorno, la gestión de claves, la firma y las pruebas de arranque.
+
+\section{Marco teórico}
+\pendiente{Explicar brevemente qué es Secure Boot v2, qué protege y en qué se diferencia de Flash Encryption. Describir la cadena de confianza y el papel de SignServer.}
+
+\section{Implementación}
+\subsection{Entorno de trabajo}
+\pendiente{Indicar el modelo y revisión del dispositivo, su compatibilidad con Secure Boot v2, el sistema operativo y las versiones de ESP-IDF y SignServer. Describir su instalación y configuración.}
+\captura{01-entorno.png}{Entorno de trabajo y herramientas utilizadas.}
+
+\subsection{Claves y configuración de SignServer}
+\pendiente{Documentar la creación del par de claves y la configuración del worker de firma en SignServer.}
+\captura{02-signserver.png}{Configuración del worker de firma.}
+
+\newpage
+\subsection{Compilación y firma del firmware}
+\pendiente{Identificar el ejemplo de ESP-IDF utilizado, como hello\_world, registrar los comandos de compilación y documentar el envío del binario a SignServer y la obtención del firmware firmado.}
+\captura{03-firmware-firmado.png}{Compilación y firma del firmware.}
+
+\subsection{Carga y validación en el dispositivo}
+\pendiente{Documentar la configuración y activación de Secure Boot v2 y la carga del firmware siguiendo el procedimiento correspondiente al modelo de placa.}
+\captura{04-secure-boot.png}{Configuración de Secure Boot v2 en el dispositivo.}
+
+\pendiente{Registrar el arranque con firmware firmado por la clave registrada y contrastarlo con una prueba de firmware no firmado o con firma no válida. Adjuntar los logs y explicar lo observado.}
+\captura{05-validacion.png}{Resultados de las pruebas de validación del firmware.}
+
+\section{Problemas encontrados y soluciones}
+\pendiente{Indicar los inconvenientes observados, su causa y cómo se resolvieron. Si no hubo inconvenientes, dejarlo registrado.}
+
+\newpage
+\section{Cuestionario de validación}
+\par\textbf{1. ¿Qué problema de seguridad resuelve el mecanismo de Secure Boot v2?}
+
+\pendiente{Respuesta breve.}
+
+\par\textbf{2. ¿Cuál es la diferencia entre firmar un firmware y cifrarlo?}
+
+\pendiente{Respuesta breve.}
+
+\par\textbf{3. ¿Qué rol cumple SignServer en este proceso?}
+
+\pendiente{Respuesta breve.}
+
+\par\textbf{4. ¿Qué sucede si intentamos cargar un firmware no firmado en un dispositivo con Secure Boot activado?}
+
+\pendiente{Respuesta breve.}
+
+\par\textbf{5. ¿Por qué es importante la gestión centralizada de claves en proyectos de IoT a gran escala?}
+
+\pendiente{Respuesta breve.}
+
+\par\textbf{6. Explica cómo se genera confianza entre el hardware y el firmware en este esquema de seguridad.}
+
+\pendiente{Respuesta breve.}
+
+\par\textbf{7. Menciona un escenario real en el que Secure Boot sería crítico.}
+
+\pendiente{Respuesta breve.}
+
+\section{Reflexión final}
+\pendiente{Resumir la importancia de Secure Boot en dispositivos IoT y los aprendizajes de la implementación.}
+
+\section{Referencias}
+\begin{itemize}
+    \item \textit{Implementación de Secure Boot v2 con Espressif y SignServer}. Consigna local: \texttt{firmadebinarios.md}.
+    \item Keyfactor. \href{https://docs.keyfactor.com/signserver/7.0/tutorial-signserver-secure-boot-v2-with-espressif-}{Tutorial: SignServer Secure Boot v2 with Espressif}. Lectura indicada en la consigna.
+\end{itemize}
+\end{document}
