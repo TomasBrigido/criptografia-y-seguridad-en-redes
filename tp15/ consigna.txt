@@ -1,0 +1,16 @@
+En el presenta laboratorio revisaremos la infraestructura de una radio real.
+Deberán presentar un informe con un análisis y propuesta de mejoras.
+El análisis será realizado identificando componentes críticos.
+ Elementos de protección incorporados. 
+ Elementos de protección que podrían incorporarse y si es viable o no.
+Analizar:
+La infraestructura de red y su arquitectura 
+Los nodos y sus sistemas operativos. 
+Las aplicaciones instaladas y las posibilidades de asegurarlas.
+Para cada caso anotar: 
+¿Que herramientas de autorización y autenticación se podrían implementar?
+¿Que otras herramientas podrían agregarse para asegurar el sistema?
+¿Que bugs o errores puede tener cada uno de estos dispositivos o aplicaciones? Ej. versiones de fw desactualizadas, versiones de aplicaciones desactualizadas ... etc.
+Les recomiendo utilizar una herramienta muy liviana para hacer un primer sondeo de seguridad en una organización https://adl.incibe.es/  respondan como si fueran ustedes parte de la empresa.
+
+Para este trabajo destinar como máximo 2 horas.

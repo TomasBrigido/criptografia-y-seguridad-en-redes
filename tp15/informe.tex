@@ -1,0 +1,213 @@
+\documentclass[12pt,a4paper]{article}
+\input{../assets/estilo-informe.tex}
+\usepackage{xurl}
+
+\newcommand{\materia}{Cyberseguridad}
+\newcommand{\numeroTP}{15}
+\newcommand{\tituloTP}{Análisis de una infraestructura real}
+\newcommand{\estudiante}{Brigido Tomas Andres}
+\newcommand{\legajo}{38481096}
+\newcommand{\carrera}{ICOMP}
+\newcommand{\docente}{Javier A. Jorge}
+
+
+% Metadatos específicos del TP15 y capturas en img/.
+\hypersetup{pdftitle={TP15 - Análisis de una infraestructura real},linkcolor=black,urlcolor=black,citecolor=black}
+\renewcommand{\captura}[2]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{img/#1}{%
+      \includegraphics[width=0.85\linewidth,height=5cm,keepaspectratio]{img/#1}%
+    }{%
+      \setlength{\fboxsep}{10pt}%
+      \fcolorbox{bronce}{calido}{\parbox[c][1.1cm][c]{0.85\linewidth}{%
+        \centering\small Captura pendiente\par\texttt{\detokenize{#1}}}}%
+    }%
+    \caption{#2}
+  \end{figure}
+}
+
+\usepackage{caption}
+\captionsetup{justification=centering}
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+  \includegraphics[width=8cm]{../assets/logo-fcefyn-2026.png}
+  \vspace{1cm}
+
+  {\color{verde}\small UNIVERSIDAD NACIONAL DE CÓRDOBA\par}
+  \vspace{2.1cm}
+  {\color{bronce}\bfseries\large TRABAJO PRÁCTICO \numeroTP\par}
+  \vspace{0.45cm}
+  {\color{verde}\bfseries\fontsize{32}{38.4}\selectfont Análisis de una\\infraestructura real\par}
+  \vspace{0.3cm}
+{\small Seguridad y propuesta de mejoras para una radio\par}
+\vspace{0.35cm}
+  {\large \materia\par}
+  \vspace{0.8cm}
+  {\color{bronce}\rule{2.7cm}{2pt}\par}
+  \vfill
+  \renewcommand{\arraystretch}{1.45}
+  \begin{tabular}{@{}p{3.2cm}p{10cm}@{}}
+    Estudiante & \estudiante \\
+    Legajo & \legajo \\
+    Carrera & \carrera \\
+    Docente & \docente \\
+  \end{tabular}
+  \vfill
+  {\small Córdoba, Argentina\par}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+
+\tableofcontents
+\vspace{1cm}
+\newpage
+
+\section{Introducción y alcance}
+El trabajo propone analizar la infraestructura de una radio cooperativa, identificar sus componentes críticos y plantear mejoras viables. Se estudiarán la red, los equipos y las aplicaciones a partir de la documentación suministrada.
+
+\section{Contexto de la organización}
+La documentación describe un servidor HPE ProLiant MicroServer Gen10 con un SSD de 256 GB para OpenMediaVault 6.0 y un disco de 1 TB para datos. Se utiliza para compartir archivos y facilitar el trabajo remoto mediante Samba, SFTP, FileBrowser, Nextcloud y Hamachi, con Portainer para administrar contenedores.
+
+La radio combina puestos internos, equipos domiciliarios y dispositivos de asistentes a talleres. El documento indica que la separación de las redes wifi, el control del ancho de banda y los respaldos automáticos todavía no estaban implementados. El streaming se realizaba desde una PC dedicada.
+
+Estos datos corresponden al material de referencia de octubre de 2023; no constituyen una verificación del estado actual. Aunque el croquis muestra dos redes wifi, el texto aclara que entonces existía una sola.
+
+Los activos más críticos son:
+\begin{itemize}
+    \item \textbf{Servidor y archivos compartidos:} su falla o compromiso podría provocar pérdida, filtración o indisponibilidad de los contenidos de trabajo.
+    \item \textbf{PC de streaming y puestos de operación:} su interrupción afectaría la transmisión y la producción de la radio.
+    \item \textbf{Routers y conexión a Internet:} su falla impediría el acceso remoto y el streaming; una intrusión podría comprometer las comunicaciones.
+    \item \textbf{Credenciales de acceso y administración:} su robo permitiría acceder sin autorización a archivos, servicios y configuraciones.
+\end{itemize}
+
+\newpage
+\subsection*{Elementos de protección incorporados}
+\begin{itemize}
+    \item \textbf{VPN Hamachi:} permite el acceso remoto mediante una red privada virtual.
+    \item \textbf{SFTP:} cifra las transferencias de archivos.
+    \item \textbf{Nextcloud:} dispone de cuentas individuales para los usuarios.
+    \item \textbf{FileBrowser:} requiere usuario y contraseña, aunque la cuenta compartida limita el control y la identificación individual.
+\end{itemize}
+
+\subsection*{Elementos de protección que podrían incorporarse y viabilidad}
+\begin{itemize}
+    \item \textbf{Respaldos automáticos con copia externa:} viables si se dispone de almacenamiento adicional y se programan y verifican las copias.
+    \item \textbf{Cuentas individuales y permisos mínimos:} viables mediante la configuración de usuarios y accesos en los servicios utilizados.
+    \item \textbf{Separación de la red de invitados:} depende de que el equipamiento permita aislarla de la red interna; de lo contrario, requiere adquirir equipos compatibles.
+    \item \textbf{Prioridad del streaming:} viable si el router permite gestionar el ancho de banda; si no, requiere equipamiento compatible.
+\end{itemize}
+
+\clearpage
+\section{Análisis de seguridad}
+\subsection{Infraestructura de red y arquitectura}
+La red conecta el servidor, los puestos de trabajo y los dispositivos wifi. 
+
+Según la documentación, \textbf{personal} e \textbf{invitados} comparten una misma red inalámbrica y no existe control del ancho de banda. Esto puede facilitar accesos indebidos y afectar el streaming.La conexión a Internet y los equipos de red son críticos.
+
+\par\textbf{¿Que herramientas de autorización y autenticación se podrían implementar?}
+\begin{itemize}
+    \item \textbf{Credenciales individuales para la VPN:} viable si se dispone de un sistema de gestión de identidades.
+    \item \textbf{Autenticación multifactor:} viable si el equipamiento lo permite y se puede integrar con los servicios existentes.
+    \item \textbf{Restricción de administración:} viable mediante la configuración de permisos y roles en los dispositivos y servicios.
+    \item \textbf{Los invitados deberían acceder únicamente a Internet y a los recursos del taller que necesiten:} viable si se implementan controles de acceso adecuados.
+\end{itemize}
+\par\textbf{¿Que otras herramientas podrían agregarse para asegurar el sistema?}
+\begin{itemize}
+    \item \textbf{Separación de redes:} aislar la red interna de la de invitados para proteger los recursos de trabajo.
+    \item \textbf{Firewall:} aplicar reglas que permitan únicamente las conexiones necesarias y restrinjan accesos no autorizados.
+    \item \textbf{Prioridad del streaming:} gestionar el ancho de banda para evitar que otras actividades afecten la transmisión.
+    \item \textbf{Monitoreo especializado:} sería conveniente contratar un equipo o servicio externo de ciberseguridad para analizar el tráfico de red, revisar registros de acceso y eventos, detectar actividad sospechosa y coordinar la respuesta ante incidentes.
+\end{itemize}
+Las medidas técnicas dependen de las funciones del equipamiento disponible. La contratación del servicio de ciberseguridad debe evaluarse según el presupuesto y las necesidades de la radio.
+\par\textbf{¿Que bugs o errores puede tener cada uno de estos dispositivos o aplicaciones?}
+\begin{itemize}
+    \item \textbf{Firmware desactualizado:} podría mantener fallos de seguridad sin corregir.
+    \item \textbf{Contraseñas predeterminadas:} podrían facilitar el acceso no autorizado a la administración de los equipos.
+    \item \textbf{Puertos abiertos innecesariamente:} podrían exponer servicios que no necesitan estar accesibles.
+    \item \textbf{Reglas de acceso mal configuradas:} podrían permitir conexiones a recursos que deberían estar restringidos.
+\end{itemize}
+
+\clearpage
+\subsection{Nodos y sistemas operativos}
+Los nodos incluyen el servidor, los puestos de operación, edición y oficina, la PC de streaming y los equipos personales. El servidor almacena los archivos compartidos y la PC de streaming sostiene la transmisión. Se documenta OpenMediaVault basado en Debian en el servidor. 
+\par\textbf{¿Qué herramientas de autorización y autenticación se podrían implementar?}
+\begin{itemize}[itemsep=3pt]
+    \item \textbf{Cuentas individuales:} identificar a cada usuario y evitar compartir credenciales.
+    \item \textbf{Permisos mínimos:} limitar el acceso a archivos y reservar los privilegios administrativos para quienes los necesiten.
+    \item \textbf{Acceso administrativo seguro:} usar claves SSH y un segundo factor donde sea compatible, además del bloqueo de pantalla en los puestos locales.
+\end{itemize}
+
+\par\textbf{¿Qué otras herramientas podrían agregarse para asegurar el sistema?}
+\begin{itemize}[itemsep=3pt]
+    \item \textbf{Actualizaciones y protección local:} aplicar parches, activar el firewall del equipo y utilizar protección antimalware compatible con cada sistema.
+    \item \textbf{Respaldos y recuperación:} automatizar copias externas de los archivos críticos y comprobar que puedan restaurarse.
+    \item \textbf{Protección física y cifrado:} restringir el acceso al servidor y cifrar los equipos portátiles que almacenen información sensible.
+\end{itemize}
+
+\par\textbf{¿Qué bugs o errores podrían tener estos equipos o sistemas?}
+\begin{itemize}[itemsep=3pt]
+    \item \textbf{Sistemas desactualizados:} podrían conservar vulnerabilidades sin corregir o carecer de soporte.
+    \item \textbf{Permisos excesivos:} podrían facilitar modificaciones indebidas y aumentar el impacto de una infección.
+    \item \textbf{Servicios innecesarios:} podrían ampliar las posibilidades de acceso no autorizado.
+    \item \textbf{Falta de respaldos automáticos:} está documentada y aumenta el riesgo de pérdida de información ante fallos o incidentes.
+\end{itemize}
+Los primeros tres puntos requieren verificación en los equipos; no se han confirmado vulnerabilidades específicas.
+
+\clearpage
+\subsection{Aplicaciones y servicios}
+\pendiente{Revisar OpenMediaVault, Samba, SFTP, Portainer, FileBrowser, Nextcloud y Hamachi. Considerar las cuentas compartidas, los privilegios administrativos, el cifrado y la exposición de servicios.}
+\pendiente{Identificar componentes críticos y protecciones ya incorporadas según la documentación.}
+
+\par\textbf{¿Que herramientas de autorización y autenticación se podrían implementar?}
+\pendiente{Respuesta breve aplicada a esta área.}
+\par\textbf{¿Que otras herramientas podrían agregarse para asegurar el sistema?}
+\pendiente{Indicar medidas y justificar su viabilidad técnica, económica y operativa.}
+\par\textbf{¿Que bugs o errores puede tener cada uno de estos dispositivos o aplicaciones? Ej. versiones de fw desactualizadas, versiones de aplicaciones desactualizadas ... etc.}
+\pendiente{Distinguir riesgos potenciales de fallos confirmados. Para citar vulnerabilidades concretas, comprobar modelo, versión y fuente.}
+
+\clearpage
+\section{Autodiagnóstico de seguridad}
+La consigna propone responder la herramienta de INCIBE como integrantes de la organización: \url{https://adl.incibe.es/}.
+
+\pendiente{Registrar las respuestas y los supuestos utilizados. Si falta información, dejar constancia de ello.}
+
+\begin{tabularx}{\linewidth}{@{}lXX@{}}
+\toprule
+\textbf{Área} & \textbf{Resultado obtenido} & \textbf{Observación principal} \\
+\midrule
+Personas & Por completar & Por completar \\
+Procesos & Por completar & Por completar \\
+Tecnología & Por completar & Por completar \\
+\bottomrule
+\end{tabularx}
+
+Los archivos Personas\_alto, Procesos\_alto y Tecnologia\_alto se utilizarán como material de apoyo. Su nivel de riesgo no se atribuirá a un nuevo diagnóstico sin haber realizado y documentado el cuestionario.
+
+\section{Propuesta de mejoras y prioridades}
+\pendiente{Seleccionar las mejoras más relevantes del análisis y ordenar su implementación. Considerar el presupuesto, el conocimiento técnico disponible y la continuidad de la radio.}
+
+\begin{tabularx}{\linewidth}{@{}p{2cm}XXX@{}}
+\toprule
+\textbf{Prioridad} & \textbf{Mejora} & \textbf{Riesgo que reduce} & \textbf{Viabilidad} \\
+\midrule
+Por definir & Por completar & Por completar & Por completar \\
+Por definir & Por completar & Por completar & Por completar \\
+Por definir & Por completar & Por completar & Por completar \\
+\bottomrule
+\end{tabularx}
+
+\clearpage
+\section{Conclusión}
+\pendiente{Resumir los principales riesgos y las mejoras prioritarias, sin extenderse.}
+
+\clearpage
+\section{Referencias}
+\begin{itemize}
+\item Consigna del TP15: análisis de una infraestructura real.
+\item Cooperativa de trabajo. Propuesta y descripción del servidor HPE ProLiant Gen10, octubre de 2023.
+\item Croquis de infraestructura suministrado por la cátedra.
+\item INCIBE. Materiales de autodiagnóstico: Personas, Procesos y Tecnología, nivel alto.
+\item INCIBE. Herramienta de autodiagnóstico: \url{https://adl.incibe.es/}.
+\end{itemize}
+\end{document}
