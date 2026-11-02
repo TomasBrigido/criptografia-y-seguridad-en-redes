@@ -1,0 +1,210 @@
+\documentclass[12pt,a4paper]{article}
+\input{../assets/estilo-informe.tex}
+\usepackage{xurl}
+
+\newcommand{\materia}{Cyberseguridad}
+\newcommand{\numeroTP}{17}
+\newcommand{\tituloTP}{Investigación de incidentes de seguridad}
+\newcommand{\estudiante}{Brigido Tomas Andres}
+\newcommand{\legajo}{38481096}
+\newcommand{\carrera}{ICOMP}
+\newcommand{\docente}{Javier A. Jorge}
+
+
+% Metadatos específicos del TP17 y capturas en img/.
+\hypersetup{pdftitle={TP17 - Investigación de incidentes de seguridad},linkcolor=black,urlcolor=black,citecolor=black}
+\renewcommand{\captura}[2]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{img/#1}{%
+      \includegraphics[width=0.85\linewidth,height=6cm,keepaspectratio]{img/#1}%
+    }{%
+      \setlength{\fboxsep}{10pt}%
+      \fcolorbox{bronce}{calido}{\parbox[c][1.1cm][c]{0.85\linewidth}{%
+        \centering\small Captura pendiente\par\texttt{\detokenize{#1}}}}%
+    }%
+    \caption{#2}
+  \end{figure}
+}
+
+\usepackage{caption}
+\captionsetup{justification=centering}
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+  \includegraphics[width=8cm]{../assets/logo-fcefyn-2026.png}
+  \vspace{1cm}
+
+  {\color{verde}\small UNIVERSIDAD NACIONAL DE CÓRDOBA\par}
+  \vspace{2.1cm}
+  {\color{bronce}\bfseries\large TRABAJO PRÁCTICO \numeroTP\par}
+  \vspace{0.45cm}
+  {\color{verde}\bfseries\fontsize{32}{38.4}\selectfont Investigación de\\incidentes de seguridad\par}
+  \vspace{0.3cm}
+{\small Análisis de registros con Security Onion\par}
+\vspace{0.35cm}
+  {\large \materia\par}
+  \vspace{0.8cm}
+  {\color{bronce}\rule{2.7cm}{2pt}\par}
+  \vfill
+  \renewcommand{\arraystretch}{1.45}
+  \begin{tabular}{@{}p{3.2cm}p{10cm}@{}}
+    Estudiante & \estudiante \\
+    Legajo & \legajo \\
+    Carrera & \carrera \\
+    Docente & \docente \\
+  \end{tabular}
+  \vfill
+  {\small Córdoba, Argentina\par}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+
+\tableofcontents
+\vspace{1cm}
+\newpage
+
+
+% Cada pregunta deja un espacio editable para una respuesta breve.
+\newcommand{\pregunta}[1]{\par{\sloppy\textbf{#1}\par}\nopagebreak\pendiente{Respuesta.}}
+\section{Introducción}
+Este trabajo reúne tres laboratorios de análisis de incidentes con Security Onion. Se utilizarán Kibana, Sguil y Wireshark para investigar tráfico HTTP y DNS, identificar comunicaciones mediante cinco tuplas y reconstruir un ataque a un equipo Windows.
+
+\section{Laboratorio 27.2.12: análisis HTTP y DNS}
+\subsection{Preparación y selección del período}
+Comprobar los servicios con \texttt{sudo so-status} y seleccionar junio de 2020 en Kibana.
+\captura{so-status.png}{Estado de los servicios de Security Onion. Logstash muestra una advertencia de inicialización.}
+\captura{kibanaJune.png}{Panel general de Kibana y registros del período seleccionado.}
+
+\clearpage
+\subsection{Investigación de la inyección SQL}
+Filtrar el tráfico HTTP y revisar los detalles de las solicitudes.
+\captura{httplogs.png}{Registros HTTP en Kibana.}
+\par{\sloppy\textbf{¿Cuál es la dirección IP de origen?}\par}
+\texttt{209.165.200.227}.
+
+\par{\sloppy\textbf{¿Cuál es la dirección IP de destino?}\par}
+\texttt{209.165.200.235}.
+
+\par{\sloppy\textbf{¿Cuál es el número de puerto de destino?}\par}
+\texttt{80} (HTTP).
+
+\clearpage
+\captura{uriField.png}{Detalle del mensaje HTTP y del campo URI.}
+\par{\sloppy\textbf{¿Cuál es la marca de tiempo del primer resultado?}\par}
+12 de junio de 2020, a las 21:30:09.445, según la hora mostrada en Kibana.
+
+\par{\sloppy\textbf{¿Cuál es el tipo de evento?}\par}
+\texttt{bro\_http}, correspondiente a un registro HTTP.
+
+\par{\sloppy\textbf{¿Qué se incluye en el campo de mensaje? Enfocarse especialmente en el campo URI.}\par}
+Incluye los detalles de una solicitud GET. El URI contiene una inyección \texttt{UNION SELECT} en el parámetro \texttt{username}, que consulta números de tarjeta, códigos de verificación y vencimientos de la tabla \texttt{credit\_cards}.
+
+\par{\sloppy\textbf{¿Qué es importante sobre esta información?}\par}
+Evidencia un intento de extraer datos sensibles mediante inyección SQL. El código HTTP 200 por sí solo no confirma la extracción.
+
+
+\clearpage
+\subsection{Revisión de la transcripción en capME!}
+\pendiente{Agregar una captura de la transcripción y de los datos identificados.}
+\par{\sloppy\textbf{¿Qué puede ver más adelante en la transcripción en cuanto a nombres de usuario?}\par}
+En la transcripción de la consigna aparecen números de tarjetas bajo la etiqueta Username, códigos de verificación como Password y fechas de vencimiento como Signature. No son credenciales de usuarios, sino datos de tarjetas extraídos.
+
+\par{\sloppy\textbf{Dé algunos ejemplos de un nombre de usuario, contraseña y firma que se exfiltró.}\par}
+Ejemplos de la captura de la consigna (página 5), usando sus etiquetas:
+\begin{itemize}[itemsep=2pt]
+    \item Username: \texttt{4444111122223333}; Password: \texttt{745}; Signature: \texttt{2012-03-01}.
+    \item Username: \texttt{774653633776330}; Password: \texttt{722}; Signature: \texttt{2015-04-01}.
+\end{itemize}
+
+
+\clearpage
+\subsection{Exfiltración mediante DNS}
+Filtrar las consultas relacionadas con \texttt{example.com}, exportar los subdominios y decodificar las cadenas hexadecimales.
+\pendiente{Agregar capturas del filtro DNS, las consultas y el texto decodificado.}
+\pregunta{Registre las direcciones IP del cliente y servidor DNS.}
+\pregunta{¿Los subdominios de las consultas DNS eran nombres legítimos? Si no, ¿cuál es el texto?}
+\pregunta{¿Qué implica este resultado sobre esta respuesta DNS en particular? ¿Cuál es el mayor significado?}
+\pregunta{¿Qué puede haber creado estas consultas DNS codificadas y por qué se seleccionó DNS como medio para exfiltrar datos?}
+
+\clearpage
+\section{Laboratorio 27.2.14: análisis de cinco tuplas}
+Las cinco tuplas corresponden a las direcciones IP y los puertos de origen y destino, junto con el protocolo utilizado. Se investigará qué ocurrió con el archivo \texttt{confidential.txt}.
+\subsection{Revisión de alertas en Sguil}
+\pendiente{Agregar la alerta y su transcripción. Los ID pueden variar entre instalaciones.}
+\pregunta{¿Qué tipo de transacciones ocurrieron entre el cliente y el servidor en este ataque?}
+
+\subsection{Análisis del flujo TCP en Wireshark}
+\pendiente{Agregar una captura de Follow TCP Stream.}
+\pregunta{¿Qué observó? ¿Qué indican los colores de texto rojo y azul?}
+\pregunta{El atacante emite el comando \texttt{whoami} en el objetivo. ¿Qué muestra esto sobre el rol de atacante en el equipo de destino?}
+\pregunta{¿Qué tipo de datos ha estado leyendo el agente de amenaza?}
+
+\clearpage
+\subsection{Investigación de FTP y archivos en Kibana}
+Seleccionar junio de 2020, incluyendo el día 11, y revisar los registros FTP y FTP\_DATA.
+\pendiente{Agregar capturas de los registros, las cinco tuplas y el contenido transferido.}
+\pregunta{¿Cuáles son las direcciones IP y los números de puerto de origen y de destino para el tráfico FTP?}
+\pregunta{¿Cuáles son las credenciales de usuario para acceder al sitio FTP?}
+\pregunta{¿Cuáles son los diferentes tipos de archivos? Mire la sección Tipo MIME.}
+\pregunta{¿Cuáles son los orígenes de archivos enumerados?}
+\pregunta{¿Cuál es el tipo MIME, la dirección IP de origen y destino asociado con la transferencia de los datos FTP? ¿Cuándo ocurrió esta transferencia?}
+\pregunta{¿Cuál es el contenido de texto del archivo que se transfirió mediante FTP?}
+\pregunta{Con toda la información recopilada hasta ahora, ¿cuál es su recomendación para detener nuevos accesos no autorizados?}
+
+\clearpage
+\section{Laboratorio 27.2.16: ataque a Windows}
+Investigar las alertas del 19 de marzo de 2019 para identificar el equipo afectado, su usuario y el malware involucrado.
+\subsection{Cronología y primera alerta en Sguil}
+\pendiente{Agregar capturas de las alertas, los datos del paquete y la regla IDS.}
+\pregunta{Según Sguil, ¿cuáles son las marcas de tiempo para la primera y última de las alertas que ocurrieron el 19/03/2019? ¿Qué es interesante acerca de las marcas de tiempo de todas las alertas de ese día?}
+\pregunta{¿Cuál era la dirección IP de origen y el número de puerto y la dirección IP de destino y el número de puerto?}
+\pregunta{¿Qué tipo de protocolo y solicitud o respuesta estuvo involucrado?}
+\pregunta{¿Qué es la alerta y el mensaje de IDS?}
+\pregunta{¿Cree que esta alerta fue el resultado de una mala configuración de IDS o de una comunicación sospechosa legítima?}
+\pregunta{¿Cuál es el nombre de host, el nombre de dominio y la dirección IP del host de origen en la actualización DNS?}
+
+\clearpage
+\subsection{Primera descarga y análisis del archivo}
+Exportar el objeto HTTP de la segunda alerta. Calcular su hash SHA256 y consultar su reputación.
+\pendiente{Agregar la transcripción, el hash calculado y el resultado de la consulta.}
+\pregunta{¿Cuáles son las direcciones MAC e IP y los números de puerto de origen y de destino?}
+\pregunta{Mirando la solicitud (azul), ¿para qué fue la solicitud?}
+\pregunta{¿Cuáles son los primeros caracteres del archivo? ¿Qué tipo de archivo identifica esa firma?}
+\pregunta{¿Reconoció Talos el hash del archivo y lo identificó como malware? Si es así, ¿qué tipo de malware?}
+
+\subsection{Comunicación asociada a Remcos}
+\pendiente{Agregar la alerta y la transcripción correspondientes a Remcos.}
+\pregunta{¿Cuál es el puerto de destino de la comunicación? ¿Es este un puerto conocido?}
+\pregunta{¿Es legible la comunicación o está encriptada?}
+\pregunta{¿Qué hace Remcos?}
+\pregunta{¿Qué tipo de comunicación cree que se estaba transmitiendo?}
+\pregunta{¿Qué tipo de encriptación y ofuscación se usó para eludir la detección?}
+
+\clearpage
+\subsection{Segunda descarga y correlación de alertas}
+\pendiente{Agregar evidencia del segundo ejecutable y de su reputación.}
+\pregunta{¿Qué ID alerta a un segundo archivo ejecutable que se está descargando?}
+\pregunta{¿Desde qué dirección IP del servidor y número de puerto se descargó el archivo?}
+\pregunta{¿Cuál es el nombre del archivo que se ha descargado?}
+\pregunta{¿Es el archivo ejecutable malware conocido y, en caso afirmativo, de qué tipo? ¿Cuál es el nombre de la detección de AMP?}
+\pregunta{¿Cómo se relacionan las tres alertas restantes?}
+
+\subsection{Investigación complementaria en Kibana}
+Seleccionar marzo de 2019 y acotar el intervalo al evento del día 19. Revisar alertas, HTTP y DNS.
+\pendiente{Agregar capturas de las alertas y los paneles HTTP y DNS.}
+\pregunta{¿Cuál es el país y la ciudad de la alerta asociada a 31.22.4.176?}
+\pregunta{¿Cuál es el país y la ciudad de la alerta asociada a 115.112.43.81?}
+\pregunta{¿Qué es el recuento de registros en el panel HTTP? ¿De qué países?}
+\pregunta{¿Cuáles son los URI de los archivos descargados?}
+\pregunta{¿A qué están relacionados los archivos \texttt{CSPCA.crl} y \texttt{ncsi.txt}?}
+\pregunta{¿Alguno de los dominios parece potencialmente inseguro? ¿Cuál es el resultado de consultar \texttt{toptoptop1.online} en VirusTotal?}
+
+\subsection{Síntesis del incidente}
+\pregunta{¿Cuál fue la hora específica del ataque del 19/03/2019?}
+\pregunta{¿Qué equipo host de Windows se infectó? ¿Quién era el usuario?}
+\pregunta{¿Con qué estaba infectada la computadora?}
+
+\clearpage
+\section{Conclusión}
+\pendiente{Resumir brevemente los hallazgos y la utilidad de correlacionar alertas, registros y tráfico.}
+\end{document}
