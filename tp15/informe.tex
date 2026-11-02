@@ -154,4 +154,36 @@ Los nodos incluyen el servidor, los puestos de operación, edición y oficina, l
 \end{itemize}
 Los primeros tres puntos requieren verificación en los equipos; no se han confirmado vulnerabilidades específicas.
 
+\clearpage
+\subsection{Aplicaciones y servicios}
+La radio utiliza OpenMediaVault para administrar el almacenamiento, Samba y SFTP para compartir archivos, FileBrowser y Nextcloud para acceder a contenidos, Portainer para gestionar contenedores y Hamachi para el acceso remoto.
+
+\par\textbf{¿Qué herramientas de autorización y autenticación se podrían implementar?}
+\begin{itemize}[itemsep=3pt]
+    \item \textbf{Cuentas individuales:} reemplazar la cuenta compartida de FileBrowser para identificar a cada usuario y revocar accesos por separado.
+    \item \textbf{Roles y permisos:} separar administradores, integrantes de la radio y asistentes a talleres, limitando el acceso a las carpetas necesarias.
+    \item \textbf{Autenticación reforzada:} habilitar un segundo factor donde sea compatible y utilizar claves para el acceso SFTP.
+\end{itemize}
+
+\par\textbf{¿Qué otras herramientas podrían agregarse para asegurar el sistema?}
+\begin{itemize}[itemsep=3pt]
+    \item \textbf{Actualizaciones:} mantener los servicios, complementos e imágenes de contenedores actualizados, verificando su compatibilidad antes de aplicar cambios.
+    \item \textbf{Cifrado y acceso restringido:} usar HTTPS en las interfaces web y limitar los paneles administrativos a la red interna o la VPN.
+    \item \textbf{Respaldos y registros:} copiar archivos, bases de datos y configuraciones; revisar accesos y generar alertas ante actividad sospechosa.
+\end{itemize}
+Estas medidas requieren configuración y mantenimiento. Los respaldos necesitan almacenamiento adicional y el monitoreo especializado debe ajustarse al presupuesto disponible.
+
+\par\textbf{¿Qué bugs o errores podrían tener estas aplicaciones?}
+\begin{itemize}[itemsep=3pt]
+    \item \textbf{Versiones desactualizadas:} podrían conservar vulnerabilidades en los servicios o sus dependencias.
+    \item \textbf{Permisos mal configurados:} podrían permitir modificar o descargar archivos sin autorización.
+    \item \textbf{Contenedores con privilegios excesivos:} podrían ampliar el impacto de una aplicación comprometida sobre el servidor.
+    \item \textbf{Credenciales compartidas:} dificultan identificar al responsable de una acción y retirar el acceso de una sola persona; este uso está documentado en FileBrowser.
+\end{itemize}
+Los primeros tres puntos son riesgos a verificar; no se comprobaron vulnerabilidades específicas en las aplicaciones instaladas.
+
+\clearpage
+\section{Conclusión}
+La infraestructura cuenta con herramientas útiles para el trabajo compartido y el acceso remoto, pero presenta aspectos a mejorar en la separación de redes, los respaldos y la gestión de accesos. Priorizar estas medidas, junto con actualizaciones y monitoreo, permitiría reducir riesgos y proteger la continuidad de la radio. Su implementación debe adaptarse al presupuesto y a la capacidad de mantenimiento de la organización.
+
 \end{document}
