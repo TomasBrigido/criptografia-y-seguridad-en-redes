@@ -1,9 +1,9 @@
 # TP17 - Investigación de incidentes de seguridad
 
-Informe único para los laboratorios 27.2.12 (HTTP y DNS), 27.2.14 (cinco tuplas) y 27.2.16 (ataque a Windows).
+Informe único para los laboratorios 27.2.12 (HTTP y DNS) y 27.2.14 (cinco tuplas). El laboratorio de Windows queda fuera del alcance.
 
-- `informe.tex`: estructura con preguntas y respuestas pendientes.
-- `img/`: capturas; las cuatro existentes ya están incorporadas.
+- `informe.tex`: informe con respuestas y conclusión.
+- `img/`: capturas incorporadas al informe.
 - Los tres PDF originales contienen las consignas.
 - `build/informe.pdf`: borrador compilado; `build/` se excluye de Git.
 

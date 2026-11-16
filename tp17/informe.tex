@@ -67,7 +67,7 @@
 % Cada pregunta deja un espacio editable para una respuesta breve.
 \newcommand{\pregunta}[1]{\par{\sloppy\textbf{#1}\par}\nopagebreak\pendiente{Respuesta.}}
 \section{Introducción}
-Este trabajo reúne tres laboratorios de análisis de incidentes con Security Onion. Se utilizarán Kibana, Sguil y Wireshark para investigar tráfico HTTP y DNS, identificar comunicaciones mediante cinco tuplas y reconstruir un ataque a un equipo Windows.
+Este trabajo reúne dos laboratorios de análisis de incidentes con Security Onion. Se utilizaron Kibana, Sguil y Wireshark para investigar tráfico HTTP y DNS e identificar comunicaciones mediante cinco tuplas.
 
 \section{Laboratorio 27.2.12: análisis HTTP y DNS}
 \subsection{Preparación y selección del período}
@@ -105,12 +105,16 @@ Evidencia un intento de extraer datos sensibles mediante inyección SQL. El cód
 
 \clearpage
 \subsection{Revisión de la transcripción en capME!}
-\pendiente{Agregar una captura de la transcripción y de los datos identificados.}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{img/capME.png}
+    \caption{Transcripción en capME! con los datos de tarjetas obtenidos mediante inyección SQL.}
+\end{figure}
 \par{\sloppy\textbf{¿Qué puede ver más adelante en la transcripción en cuanto a nombres de usuario?}\par}
-En la transcripción de la consigna aparecen números de tarjetas bajo la etiqueta Username, códigos de verificación como Password y fechas de vencimiento como Signature. No son credenciales de usuarios, sino datos de tarjetas extraídos.
+En la transcripción aparecen números de tarjetas bajo la etiqueta Username, códigos de verificación como Password y fechas de vencimiento como Signature. No son credenciales de usuarios, sino datos de tarjetas extraídos.
 
 \par{\sloppy\textbf{Dé algunos ejemplos de un nombre de usuario, contraseña y firma que se exfiltró.}\par}
-Ejemplos de la captura de la consigna (página 5), usando sus etiquetas:
+Ejemplos de la captura, usando sus etiquetas:
 \begin{itemize}[itemsep=2pt]
     \item Username: \texttt{4444111122223333}; Password: \texttt{745}; Signature: \texttt{2012-03-01}.
     \item Username: \texttt{774653633776330}; Password: \texttt{722}; Signature: \texttt{2015-04-01}.
@@ -119,92 +123,87 @@ Ejemplos de la captura de la consigna (página 5), usando sus etiquetas:
 
 \clearpage
 \subsection{Exfiltración mediante DNS}
-Filtrar las consultas relacionadas con \texttt{example.com}, exportar los subdominios y decodificar las cadenas hexadecimales.
-\pendiente{Agregar capturas del filtro DNS, las consultas y el texto decodificado.}
-\pregunta{Registre las direcciones IP del cliente y servidor DNS.}
-\pregunta{¿Los subdominios de las consultas DNS eran nombres legítimos? Si no, ¿cuál es el texto?}
-\pregunta{¿Qué implica este resultado sobre esta respuesta DNS en particular? ¿Cuál es el mayor significado?}
-\pregunta{¿Qué puede haber creado estas consultas DNS codificadas y por qué se seleccionó DNS como medio para exfiltrar datos?}
+Se revisaron los registros DNS de junio de 2020 y se filtraron las consultas relacionadas con \texttt{example.com} para decodificar sus subdominios.
+\captura{dns.png}{Panel DNS de Kibana: 22 registros y puerto de destino 53.}
+\captura{dnsQuery.png}{Consultas DNS con cadenas hexadecimales y opción de exportación.}
+
+\clearpage
+\captura{queryRara.png}{Cuatro consultas con subdominios hexadecimales filtradas por example.com.}
+\captura{ips.png}{Detalle de una consulta DNS: dirección IP de origen y código SERVFAIL.}
+\captura{ipscompletas.png}{Direcciones IP del cliente y del servidor DNS para las cuatro consultas filtradas.}
+\par{\sloppy\textbf{Registre las direcciones IP del cliente y servidor DNS.}\par}
+Cliente DNS: \texttt{192.168.0.11}. Servidor DNS: \texttt{209.165.200.235}.
+
+\clearpage
+\captura{hexaDecodificado.png}{Decodificación de las cadenas hexadecimales con \texttt{xxd -r -p}.}
+\par{\sloppy\textbf{¿Los subdominios de las consultas DNS eran nombres legítimos? Si no, ¿cuál es el texto?}\par}
+No eran nombres convencionales: contenían fragmentos de un documento codificados en hexadecimal. El texto recuperado es:
+\begin{quote}\small
+CONFIDENTIAL DOCUMENT\\
+DO NOT SHARE\\
+This document contains information about the last security breach.
+\end{quote}
+
+\par{\sloppy\textbf{¿Qué implica este resultado sobre esta respuesta DNS en particular? ¿Cuál es el mayor significado?}\par}
+Los datos confidenciales viajaban dentro de las consultas DNS, lo que evidencia su uso como canal de exfiltración. El código \texttt{SERVFAIL} mostrado no demuestra que los datos hayan llegado a un servidor controlado por el atacante.
+
+\par{\sloppy\textbf{¿Qué puede haber creado estas consultas DNS codificadas y por qué se seleccionó DNS como medio para exfiltrar datos?}\par}
+Podría haberlas generado un malware o un script que divide y codifica el archivo. DNS suele estar permitido en la red, por lo que puede utilizarse para intentar sacar información entre consultas habituales.
 
 \clearpage
 \section{Laboratorio 27.2.14: análisis de cinco tuplas}
 Las cinco tuplas corresponden a las direcciones IP y los puertos de origen y destino, junto con el protocolo utilizado. Se investigará qué ocurrió con el archivo \texttt{confidential.txt}.
 \subsection{Revisión de alertas en Sguil}
-\pendiente{Agregar la alerta y su transcripción. Los ID pueden variar entre instalaciones.}
-\pregunta{¿Qué tipo de transacciones ocurrieron entre el cliente y el servidor en este ataque?}
+\captura{sguil.png}{Alerta 5.1 en Sguil: respuesta con privilegios root y datos de la conexión TCP.}
+\captura{servidoratacado.png}{Transcripción de comandos remotos y modificación del archivo /etc/passwd.}
+\par{\sloppy\textbf{¿Qué tipo de transacciones ocurrieron entre el cliente y el servidor en este ataque?}\par}
+Se intercambiaron comandos de una consola remota y sus respuestas mediante TCP. El atacante consultó \texttt{/etc/passwd} y agregó la cuenta \texttt{myroot} con UID 0, otorgándole privilegios de superusuario.
+\clearpage
 
 \subsection{Análisis del flujo TCP en Wireshark}
-\pendiente{Agregar una captura de Follow TCP Stream.}
-\pregunta{¿Qué observó? ¿Qué indican los colores de texto rojo y azul?}
-\pregunta{El atacante emite el comando \texttt{whoami} en el objetivo. ¿Qué muestra esto sobre el rol de atacante en el equipo de destino?}
-\pregunta{¿Qué tipo de datos ha estado leyendo el agente de amenaza?}
+\captura{tcpstream.png}{Flujo TCP con comandos del atacante en rojo y respuestas del servidor en azul.}
+\par{\sloppy\textbf{¿Qué observó? ¿Qué indican los colores de texto rojo y azul?}\par}
+Se observa una consola remota sin cifrado. En esta captura, el rojo identifica los comandos enviados por el cliente atacante y el azul las respuestas del servidor.
+
+\captura{whoiam.png}{Ejecución de whoami, información de red y lectura de /etc/shadow.}
+\par{\sloppy\textbf{El atacante emite el comando \texttt{whoami} en el objetivo. ¿Qué muestra esto sobre el rol de atacante en el equipo de destino?}\par}
+La respuesta es \texttt{root}: el atacante ejecutaba comandos con privilegios de superusuario.
+
+\par{\sloppy\textbf{¿Qué tipo de datos ha estado leyendo el agente de amenaza?}\par}
+Información del equipo y de la red, cuentas de usuarios en \texttt{/etc/passwd} y hashes de contraseñas en \texttt{/etc/shadow}.
 
 \clearpage
 \subsection{Investigación de FTP y archivos en Kibana}
-Seleccionar junio de 2020, incluyendo el día 11, y revisar los registros FTP y FTP\_DATA.
-\pendiente{Agregar capturas de los registros, las cinco tuplas y el contenido transferido.}
-\pregunta{¿Cuáles son las direcciones IP y los números de puerto de origen y de destino para el tráfico FTP?}
-\pregunta{¿Cuáles son las credenciales de usuario para acceder al sitio FTP?}
-\pregunta{¿Cuáles son los diferentes tipos de archivos? Mire la sección Tipo MIME.}
-\pregunta{¿Cuáles son los orígenes de archivos enumerados?}
-\pregunta{¿Cuál es el tipo MIME, la dirección IP de origen y destino asociado con la transferencia de los datos FTP? ¿Cuándo ocurrió esta transferencia?}
-\pregunta{¿Cuál es el contenido de texto del archivo que se transfirió mediante FTP?}
-\pregunta{Con toda la información recopilada hasta ahora, ¿cuál es su recomendación para detener nuevos accesos no autorizados?}
+Se revisaron los registros FTP y los archivos transferidos durante junio de 2020.
+\captura{ftpentradas.png}{Entradas FTP con las direcciones IP, los puertos y la marca de tiempo.}
+\par{\sloppy\textbf{¿Cuáles son las direcciones IP y los números de puerto de origen y de destino para el tráfico FTP?}\par}
+Origen: \texttt{192.168.0.11:52776}. Destino: \texttt{209.165.200.235:21}. Corresponden a la conexión de control FTP sobre TCP.
+
+\captura{credencialesatacante.png}{Transcripción FTP con autenticación y comando STOR para confidential.txt.}
+\par{\sloppy\textbf{¿Cuáles son las credenciales de usuario para acceder al sitio FTP?}\par}
+Usuario: \texttt{analyst}. Contraseña: \texttt{cyberops}. Ambas se transmiten en texto claro.
 
 \clearpage
-\section{Laboratorio 27.2.16: ataque a Windows}
-Investigar las alertas del 19 de marzo de 2019 para identificar el equipo afectado, su usuario y el malware involucrado.
-\subsection{Cronología y primera alerta en Sguil}
-\pendiente{Agregar capturas de las alertas, los datos del paquete y la regla IDS.}
-\pregunta{Según Sguil, ¿cuáles son las marcas de tiempo para la primera y última de las alertas que ocurrieron el 19/03/2019? ¿Qué es interesante acerca de las marcas de tiempo de todas las alertas de ese día?}
-\pregunta{¿Cuál era la dirección IP de origen y el número de puerto y la dirección IP de destino y el número de puerto?}
-\pregunta{¿Qué tipo de protocolo y solicitud o respuesta estuvo involucrado?}
-\pregunta{¿Qué es la alerta y el mensaje de IDS?}
-\pregunta{¿Cree que esta alerta fue el resultado de una mala configuración de IDS o de una comunicación sospechosa legítima?}
-\pregunta{¿Cuál es el nombre de host, el nombre de dominio y la dirección IP del host de origen en la actualización DNS?}
+\captura{archivos.png}{Tipos MIME registrados en el panel de archivos.}
+\par{\sloppy\textbf{¿Cuáles son los diferentes tipos de archivos? Mire la sección Tipo MIME.}\par}
+\texttt{text/plain}, \texttt{image/jpeg}, \texttt{image/png}, \texttt{text/html}, \texttt{image/gif} e \texttt{image/x-icon}.
+
+\captura{origenarchivos.png}{Orígenes de los archivos: HTTP y FTP\_DATA.}
+\par{\sloppy\textbf{¿Cuáles son los orígenes de archivos enumerados?}\par}
+HTTP (22 archivos) y FTP\_DATA (1 archivo).
 
 \clearpage
-\subsection{Primera descarga y análisis del archivo}
-Exportar el objeto HTTP de la segunda alerta. Calcular su hash SHA256 y consultar su reputación.
-\pendiente{Agregar la transcripción, el hash calculado y el resultado de la consulta.}
-\pregunta{¿Cuáles son las direcciones MAC e IP y los números de puerto de origen y de destino?}
-\pregunta{Mirando la solicitud (azul), ¿para qué fue la solicitud?}
-\pregunta{¿Cuáles son los primeros caracteres del archivo? ¿Qué tipo de archivo identifica esa firma?}
-\pregunta{¿Reconoció Talos el hash del archivo y lo identificó como malware? Si es así, ¿qué tipo de malware?}
+\captura{MIME.png}{Tipo MIME y direcciones IP del archivo transferido mediante FTP.}
+\par{\sloppy\textbf{¿Cuál es el tipo MIME, la dirección IP de origen y destino asociado con la transferencia de los datos FTP? ¿Cuándo ocurrió esta transferencia?}\par}
+Tipo: \texttt{text/plain}. Origen: \texttt{192.168.0.11}. Destino: \texttt{209.165.200.235}. El registro FTP asociado muestra el 11 de junio de 2020 a las 03:53:09.086, según Kibana.
 
-\subsection{Comunicación asociada a Remcos}
-\pendiente{Agregar la alerta y la transcripción correspondientes a Remcos.}
-\pregunta{¿Cuál es el puerto de destino de la comunicación? ¿Es este un puerto conocido?}
-\pregunta{¿Es legible la comunicación o está encriptada?}
-\pregunta{¿Qué hace Remcos?}
-\pregunta{¿Qué tipo de comunicación cree que se estaba transmitiendo?}
-\pregunta{¿Qué tipo de encriptación y ofuscación se usó para eludir la detección?}
+\par{\sloppy\textbf{¿Cuál es el contenido de texto del archivo que se transfirió mediante FTP?}\par}
+Las capturas identifican el archivo \texttt{confidential.txt}, pero no muestran su contenido. Falta revisar la transcripción de FTP\_DATA para recuperarlo.
 
-\clearpage
-\subsection{Segunda descarga y correlación de alertas}
-\pendiente{Agregar evidencia del segundo ejecutable y de su reputación.}
-\pregunta{¿Qué ID alerta a un segundo archivo ejecutable que se está descargando?}
-\pregunta{¿Desde qué dirección IP del servidor y número de puerto se descargó el archivo?}
-\pregunta{¿Cuál es el nombre del archivo que se ha descargado?}
-\pregunta{¿Es el archivo ejecutable malware conocido y, en caso afirmativo, de qué tipo? ¿Cuál es el nombre de la detección de AMP?}
-\pregunta{¿Cómo se relacionan las tres alertas restantes?}
-
-\subsection{Investigación complementaria en Kibana}
-Seleccionar marzo de 2019 y acotar el intervalo al evento del día 19. Revisar alertas, HTTP y DNS.
-\pendiente{Agregar capturas de las alertas y los paneles HTTP y DNS.}
-\pregunta{¿Cuál es el país y la ciudad de la alerta asociada a 31.22.4.176?}
-\pregunta{¿Cuál es el país y la ciudad de la alerta asociada a 115.112.43.81?}
-\pregunta{¿Qué es el recuento de registros en el panel HTTP? ¿De qué países?}
-\pregunta{¿Cuáles son los URI de los archivos descargados?}
-\pregunta{¿A qué están relacionados los archivos \texttt{CSPCA.crl} y \texttt{ncsi.txt}?}
-\pregunta{¿Alguno de los dominios parece potencialmente inseguro? ¿Cuál es el resultado de consultar \texttt{toptoptop1.online} en VirusTotal?}
-
-\subsection{Síntesis del incidente}
-\pregunta{¿Cuál fue la hora específica del ataque del 19/03/2019?}
-\pregunta{¿Qué equipo host de Windows se infectó? ¿Quién era el usuario?}
-\pregunta{¿Con qué estaba infectada la computadora?}
+\par{\sloppy\textbf{Con toda la información recopilada hasta ahora, ¿cuál es su recomendación para detener nuevos accesos no autorizados?}\par}
+Aislar el equipo comprometido, eliminar la cuenta \texttt{myroot}, cambiar las credenciales expuestas y corregir la vulnerabilidad. Restringir los accesos y reemplazar FTP por SFTP.
 
 \clearpage
 \section{Conclusión}
-\pendiente{Resumir brevemente los hallazgos y la utilidad de correlacionar alertas, registros y tráfico.}
+El análisis con Kibana, Sguil y Wireshark permitió identificar una inyección SQL, datos ocultos en consultas DNS y accesos con privilegios de administrador. La correlación de registros y tráfico facilitó reconstruir las acciones observadas y mostró la importancia de proteger las credenciales, restringir los accesos y monitorear la red.
 \end{document}

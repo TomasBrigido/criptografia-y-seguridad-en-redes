@@ -1,0 +1,125 @@
+\documentclass[12pt,a4paper]{article}
+\input{../assets/estilo-informe.tex}
+\usepackage{xurl}
+
+\newcommand{\materia}{Cyberseguridad}
+\newcommand{\numeroTP}{18}
+\newcommand{\tituloTP}{Análisis de un infostealer (Lumma)}
+\newcommand{\estudiante}{Brigido Tomas Andres}
+\newcommand{\legajo}{38481096}
+\newcommand{\carrera}{ICOMP}
+\newcommand{\docente}{Javier A. Jorge}
+
+
+% Metadatos específicos del TP18 y capturas en img/.
+\hypersetup{pdftitle={TP18 - Análisis de un infostealer (Lumma)},linkcolor=black,urlcolor=black,citecolor=black}
+\renewcommand{\captura}[2]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{img/#1}{%
+      \includegraphics[width=\linewidth,height=7cm,keepaspectratio]{img/#1}%
+    }{%
+      \setlength{\fboxsep}{10pt}%
+      \fcolorbox{bronce}{calido}{\parbox[c][1.1cm][c]{0.85\linewidth}{%
+        \centering\small Captura pendiente\par\texttt{\detokenize{#1}}}}%
+    }%
+    \caption{#2}
+  \end{figure}
+}
+
+\usepackage{caption}
+\captionsetup{justification=centering}
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+  \includegraphics[width=8cm]{../assets/logo-fcefyn-2026.png}
+  \vspace{1cm}
+
+  {\color{verde}\small UNIVERSIDAD NACIONAL DE CÓRDOBA\par}
+  \vspace{2.1cm}
+  {\color{bronce}\bfseries\large TRABAJO PRÁCTICO \numeroTP\par}
+  \vspace{0.45cm}
+  {\color{verde}\bfseries\fontsize{32}{38.4}\selectfont Análisis de un\\infostealer (Lumma)\par}
+  \vspace{0.3cm}
+{\small PCAP, Security Onion e indicadores de compromiso\par}
+\vspace{0.35cm}
+  {\large \materia\par}
+  \vspace{0.8cm}
+  {\color{bronce}\rule{2.7cm}{2pt}\par}
+  \vfill
+  \renewcommand{\arraystretch}{1.45}
+  \begin{tabular}{@{}p{3.2cm}p{10cm}@{}}
+    Estudiante & \estudiante \\
+    Legajo & \legajo \\
+    Carrera & \carrera \\
+    Docente & \docente \\
+  \end{tabular}
+  \vfill
+  {\small Córdoba, Argentina\par}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+
+\tableofcontents
+\vspace{1cm}
+\newpage
+
+
+\section{Introducción}
+Se analizó el PCAP del caso Lumma del 19 de septiembre de 2024 para identificar comunicaciones sospechosas y cinco indicadores de compromiso. Se utilizó la VM disponible de Security Onion, con Snort, Zeek y Kibana.
+
+\section{Proceso y resultados}
+\subsection{Importación y revisión de alertas}
+Se descargó el PCAP de Malware Traffic Analysis y se importó desde la carpeta Downloads con el siguiente comando:
+\begin{quote}\small\ttfamily
+sudo so-import-pcap\\
+2024-09-19-file-downloader-to-Lumma-Stealer.pcap
+\end{quote}
+\captura{importacion.png}{Importación completada y análisis del PCAP con Snort y Zeek.}
+En Kibana se seleccionó el intervalo del 19 al 20 de septiembre de 2024. Se visualizaron 147 registros y el panel NIDS mostró 0 alertas. Esto no demuestra ausencia de actividad maliciosa; se continuó con los registros HTTP y DNS.
+
+\clearpage
+\subsection{Análisis de HTTP y DNS}
+El equipo \texttt{10.9.19.101} realizó tres solicitudes HTTP GET por el puerto 80: dos a \texttt{nhit66.com} y una a \texttt{back-kurwa.com}. Se observaron dos respuestas 200 y una redirección 301. No aparecieron solicitudes POST en el panel HTTP revisado.
+
+Las rutas fueron \texttt{/test\_gate0117.php}, \texttt{/gate2.php} y \texttt{/gAySB.php}. Las tres solicitudes compartían un User-Agent que declaraba Windows NT 6.3 y Trident/7.0; este dato no permite identificar por sí solo el malware.
+\captura{http-test-gate.png}{Registro HTTP con dominio, URI, IP de origen y User-Agent.}
+
+Se observaron 24 registros DNS de tipo A: 16 con NOERROR y 8 con NXDOMAIN. Entre los dominios consultados aparece \texttt{back-kurwa.com}, también presente en HTTP. Los indicadores se contrastaron con el listado publicado para este caso [1].
+\captura{dns-consultas.png}{Dominios consultados y respuestas DNS, mostrados como listas independientes.}
+
+\clearpage
+\section{Indicadores de compromiso}
+Los siguientes cinco dominios aparecen en las capturas y en el listado de referencia [1]. Su función se atribuye al análisis publicado; no se infiere únicamente del nombre o de una consulta DNS.
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\linewidth}{@{}c p{5.1cm} X@{}}
+\toprule
+N.º & Dominio & Evidencia y relación con el caso \\
+\midrule
+1 & \nolinkurl{nhit66.com} & Dos GET en HTTP; tráfico inicial de la cadena de infección. \\
+2 & \nolinkurl{back-kurwa.com} & Presente en HTTP y DNS; GET con redirección 301 a HTTPS según [1]. \\
+3 & \nolinkurl{genedjestytw.shop} & Consultado por DNS; servidor C2 de Lumma identificado en [1]. \\
+4 & \nolinkurl{eemmbryequo.shop} & Consultado por DNS; dominio C2 que no resolvió según [1]. \\
+5 & \nolinkurl{chick-chick666.com} & Consultado por DNS; alojamiento del ejecutable de Lumma según [1]. \\
+\bottomrule
+\end{tabularx}
+\par\endgroup
+
+\section{Medidas de mitigación}
+\begin{enumerate}[itemsep=5pt]
+\item \textbf{Prevenir la infección:} descargar software de fuentes oficiales, evitar cracks y mantener el sistema y la protección antimalware actualizados.
+\item \textbf{Detectar y contener:} monitorear HTTP y DNS, actualizar las reglas de detección y bloquear los indicadores confirmados del incidente.
+\item \textbf{Proteger las cuentas:} ante una infección, aislar el equipo, revocar sesiones y cambiar contraseñas desde un dispositivo limpio; habilitar autenticación multifactor.
+\end{enumerate}
+
+\clearpage
+\section{Conclusión}
+El análisis permitió identificar cinco dominios vinculados al caso mediante registros HTTP y DNS y su contraste con información de referencia. Aunque NIDS no mostró alertas, la revisión del tráfico aportó evidencia útil para investigar la infección y proponer medidas de protección.
+
+\section*{Referencia}
+\addcontentsline{toc}{section}{Referencia}
+[1] Malware Traffic Analysis, \textit{File downloader to Lumma Stealer}, 19 de septiembre de 2024. PCAP y listado de IOCs del caso:\\
+\url{https://www.malware-traffic-analysis.net/2024/09/19/index.html}
+\end{document}
